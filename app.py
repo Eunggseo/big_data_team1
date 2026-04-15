@@ -6,7 +6,7 @@ from src.cache import init_cache
 from src.config import config
 
 st.set_page_config(page_title="RAG App", layout="wide")
-st.title("RAG Project Demo")
+st.title("Patient Notes Chatbot")
 
 init_cache()
 
