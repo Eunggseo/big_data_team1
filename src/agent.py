@@ -56,7 +56,20 @@ def maybe_retry(state: PipelineState) -> PipelineState:
 
 
 def generate(state: PipelineState) -> PipelineState:
-    contexts = [d["content"] for d in state.reranked_docs]
+    contexts = []
+    for i, d in enumerate(state.reranked_docs, start=1):
+        metadata = d.get("metadata", {})
+        note_id = metadata.get("note_id", "N/A")
+        source = metadata.get("source", "N/A")
+        content = d.get("content", "")
+
+        formatted_context = f"""Document {i}
+note_id: {note_id}
+source: {source}
+
+{content}"""
+        contexts.append(formatted_context)
+
     state.answer = generate_answer(state.query, contexts)
     return state
 
