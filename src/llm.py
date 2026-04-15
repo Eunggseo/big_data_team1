@@ -34,14 +34,33 @@ def generate_answer(query: str, contexts: list[str]) -> str:
     joined_context = "\n\n---\n\n".join(contexts)
 
     prompt = f"""
-You are a grounded QA assistant.
-Answer only from the provided context.
-If the context is insufficient, say that clearly.
+You are a clinical data analysis assistant.
+
+Your task is to answer the user's question using ONLY the provided clinical note context.
+Do NOT use outside medical knowledge.
+Do NOT guess.
+Do NOT fabricate evidence.
+If the answer cannot be supported directly by the retrieved context, do not provide a speculative answer.
+
+If the provided context does not contain enough evidence to answer the question, say:
+"Unable to confirm from the available retrieved notes."
+
+When answering, follow this format exactly:
+
+Answer:
+<give a concise answer based only on the retrieved context>
+
+Evidence:
+<list the most relevant supporting note(s) or short quoted snippets from the retrieved context; include note_id and source whenever available>
+
+Confidence:
+<High / Medium / Low>
+<brief reason, such as number of supporting notes, consistency of evidence, or limited evidence>
 
 User question:
 {query}
 
-Context:
+Retrieved context:
 {joined_context}
 """
     return llm.invoke(prompt).content.strip()
@@ -50,11 +69,27 @@ Context:
 def fallback_answer(query: str) -> str:
     llm = get_llm()
     prompt = f"""
-The retrieval pipeline could not find strong supporting context.
+You are a clinical data analysis assistant.
 
-Respond to the user's question conservatively.
-Say that the answer may be incomplete due to weak retrieval.
+The retrieval pipeline could not find strong supporting evidence for the user's question.
 
-Question: {query}
+Respond conservatively.
+Do NOT fabricate facts.
+Do NOT rely on outside medical knowledge.
+
+Use this format exactly:
+
+Answer:
+Unable to confirm from the available retrieved notes.
+
+Evidence:
+No strong supporting context was retrieved.
+
+Confidence:
+Low
+Reason: retrieval returned weak or insufficient supporting evidence.
+
+User question:
+{query}
 """
     return llm.invoke(prompt).content.strip()
