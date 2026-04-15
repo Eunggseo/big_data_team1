@@ -1,4 +1,14 @@
 import os
+os.environ["PYTHONWARNINGS"] = "ignore"
+os.environ["TRANSFORMERS_NO_ADVISORY_WARNINGS"] = "1"
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+
+import sys
+sys.stderr = open(os.devnull, 'w')
+
+import warnings
+warnings.filterwarnings("ignore")
+
 import streamlit as st
 from src.pipeline import run_pipeline
 from src.ingest import build_index

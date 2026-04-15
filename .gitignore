@@ -3,6 +3,7 @@
 __pycache__
 logs/
 data/
+.vscode
 
 # FAISS index
 storage/faiss_index/
