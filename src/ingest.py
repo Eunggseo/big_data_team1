@@ -6,6 +6,7 @@ from langchain_core.documents import Document
 from src.config import config
 from src.vectorstore import save_faiss_index
 from src.data_sources.csv_loader import CSVLoader
+from langchain_community.vectorstores.utils import DistanceStrategy
 
 
 def load_documents(data_dir: str) -> List[Document]:
@@ -134,9 +135,10 @@ def build_index():
     embs = [x[2] for x in embedded_chunks]
 
     db = FAISS.from_embeddings(
-    text_embeddings=list(zip(texts, embs)),
-    embedding=embedding_model,
-    metadatas=metas
+        text_embeddings=list(zip(texts, embs)),
+        embedding=embedding_model,
+        metadatas=metas,
+        distance_strategy=DistanceStrategy.COSINE
     )
 
     os.makedirs(config.FAISS_INDEX_DIR, exist_ok=True)
