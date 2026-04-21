@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -24,19 +25,71 @@ def load_documents(data_dir: str) -> List[Document]:
 
     return docs
 
+SECTION_PATTERN = re.compile(
+    r"^([A-Z][A-Za-z0-9\s/&\-\(\)]{2,60}):\s*$",
+    re.MULTILINE
+)
+
 
 def chunk_documents(documents: List[Document]) -> List[Document]:
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800, # tune
-        chunk_overlap=150, # tune 
+        chunk_size=500,
+        chunk_overlap=75,
     )
-    chunks = splitter.split_documents(documents)
 
-    for i, chunk in enumerate(chunks):
-        chunk.metadata["chunk_id"] = i
-        chunk.metadata["source"] = chunk.metadata.get("source", "unknown")
+    final_chunks = []
 
-    return chunks
+    for doc in documents:
+        text = doc.page_content
+        base_meta = dict(doc.metadata)
+
+        if not isinstance(text, str) or not text.strip():
+            continue
+
+        matches = list(SECTION_PATTERN.finditer(text))
+
+        section_blocks = []
+
+        # -------- PREAMBLE --------
+        if matches and matches[0].start() > 0:
+            preamble = text[:matches[0].start()].strip()
+            if preamble:
+                section_blocks.append(("Preamble", preamble))
+
+        # -------- SECTIONS --------
+        for i, match in enumerate(matches):
+            section_name = match.group(1).strip()
+
+            start = match.end()
+            end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+
+            body = text[start:end].strip()
+
+            if body:
+                section_blocks.append((section_name, body))
+
+        # -------- NO HEADERS FOUND --------
+        if not section_blocks:
+            section_blocks.append(("Full Note", text.strip()))
+
+        # -------- SUBCHUNK EACH SECTION --------
+        for section_name, section_text in section_blocks:
+
+            temp_doc = Document(
+                page_content=section_text,
+                metadata={
+                    **base_meta,
+                    "section_name": section_name
+                }
+            )
+
+            subchunks = splitter.split_documents([temp_doc])
+
+            for j, subchunk in enumerate(subchunks):
+                subchunk.metadata["subchunk_id"] = j
+                final_chunks.append(subchunk)
+
+    return final_chunks
 
 
 

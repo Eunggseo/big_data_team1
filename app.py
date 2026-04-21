@@ -16,6 +16,8 @@ from src.cache import init_cache
 from src.config import config
 import time
 
+from textwrap import dedent
+
 # ─── Page Config ────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="ClinicalRAG — MIMIC-IV",
@@ -1003,28 +1005,30 @@ with col_vault:
             content      = doc.get("content", "")
             snippet      = content[:220] + ("…" if len(content) > 220 else "")
 
-            st.markdown(f"""
-            <div class="ev-card {rare_cls}">
-                <div class="ev-head">
-                    <div class="ev-top">
-                        <span class="ev-noteid">{note_id}</span>
-                        <span class="ev-score-{tier}">{score_val}</span>
-                    </div>
-                    <div class="ev-meta2">
-                        <span class="ev-srctype">{src_type}</span>
-                        {rare_flag}
-                        <span class="ev-ret">{ret_str}</span>
-                    </div>
-                    <div class="ev-score-bar">
-                        <div class="ev-score-bar-fill {tier}" style="width:{bar_pct}"></div>
-                    </div>
-                    <span class="ev-conf {tier}">● {_score_label(tier)}</span>
+        card_html = dedent(f"""
+        <div class="ev-card {rare_cls}">
+            <div class="ev-head">
+                <div class="ev-top">
+                    <span class="ev-noteid">{note_id}</span>
+                    <span class="ev-score-{tier}">{score_val}</span>
                 </div>
-                <div class="ev-body">
-                    <div class="ev-snippet">{snippet}</div>
+                <div class="ev-meta2">
+                    <span class="ev-srctype">{src_type}</span>
+                    {rare_flag}
+                    <span class="ev-ret">{ret_str}</span>
                 </div>
+                <div class="ev-score-bar">
+                    <div class="ev-score-bar-fill {tier}" style="width:{bar_pct}"></div>
+                </div>
+                <span class="ev-conf {tier}">● {_score_label(tier)}</span>
             </div>
-            """, unsafe_allow_html=True)
+            <div class="ev-body">
+                <div class="ev-snippet">{snippet}</div>
+            </div>
+        </div>
+        """).strip()
+
+        st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)  # ev-cards-wrap
     st.markdown('</div>', unsafe_allow_html=True)  # ev-col-wrapper

@@ -8,5 +8,4 @@ data/
 # FAISS index
 storage/faiss_index/
 storage/embedding_checkpoint.pkl
-# storage/cache.sqlite
-
+storage/cache.sqlite
