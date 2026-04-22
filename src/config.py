@@ -18,12 +18,26 @@ class Config:
     FAISS_INDEX_DIR = os.getenv("FAISS_INDEX_DIR", "./storage/faiss_index")
     CACHE_DB_PATH = os.getenv("CACHE_DB_PATH", "./storage/cache.sqlite")
 
-    TOP_K = int(os.getenv("TOP_K", "8"))
-    TOP_N = int(os.getenv("TOP_N", "3"))
-    MAX_RETRIES = int(os.getenv("MAX_RETRIES", "2"))
+    # TOP_K = int(os.getenv("TOP_K", "8"))
+    # TOP_N = int(os.getenv("TOP_N", "3"))
+    # MAX_RETRIES = int(os.getenv("MAX_RETRIES", "2"))
+
+    TOP_K=8
+    TOP_N=3
+    MAX_RETRIES=2
+    COHORT_TOP_N = 4
 
     RETRIEVAL_SCORE_THRESHOLD = float(os.getenv("RETRIEVAL_SCORE_THRESHOLD", "0.45"))
     RERANK_SCORE_THRESHOLD = float(os.getenv("RERANK_SCORE_THRESHOLD", "0.20"))
+
+    DATA_PATH = "/Users/mashhoodkhan/Downloads/trends_data/discharge-001.csv"
+
+    MAX_CONTEXT_CHARS = 14000 # used where
+
+
+    MAX_ROWS_LOAD = 100
+
+    SQLITE_DB_PATH = "./storage/notes.db"
 
 
 config = Config()

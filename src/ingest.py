@@ -139,14 +139,19 @@ def chunk_documents(documents):
 def build_index():
     loader = CSVLoader(
         path="/Users/mashhoodkhan/Downloads/trends_data/discharge-001.csv",
-        nrows=100, # running into issues with usage limits, testing with 100 rows
+        nrows=config.MAX_ROWS_LOAD, # running into issues with usage limits, testing with 100 rows
         filters={}
     )
 
+    print("[INGEST] Reading CSV...")
     docs = loader.load()
+    print(f"[INGEST] Loaded rows: {len(docs)}")
+
+    print("[INGEST] Chunking documents...")
     chunks = chunk_documents(docs)
 
     embedding_model = get_embedding_model()
+    print(f"[INGEST] using embedding model: {embedding_model}")
 
     # -------- LOAD CHECKPOINT --------
     if os.path.exists(CHECKPOINT_PATH):
@@ -183,6 +188,7 @@ def build_index():
         print(f"Processed {i + batch_size}/{len(chunks)}")
 
     # -------- BUILD FAISS --------
+    print("[INGEST] Building FAISS index...")
     texts = [x[0] for x in embedded_chunks]
     metas = [x[1] for x in embedded_chunks]
     embs = [x[2] for x in embedded_chunks]

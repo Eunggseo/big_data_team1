@@ -93,3 +93,102 @@ User question:
 {query}
 """
     return llm.invoke(prompt).content.strip()
+
+
+def summarize_clinical_context(user_query: str, context: str) -> str:
+    llm = get_llm()
+
+    prompt = f"""
+You are assisting a physician.
+
+Use the notes below to answer the request.
+
+User request:
+{user_query}
+
+Clinical notes:
+{context}
+
+Provide a concise structured summary covering:
+- Key conditions
+- Hospital course
+- Important treatments/procedures
+- Relevant psychiatric/social history if clinically relevant
+- Discharge status / follow-up if available
+
+If information is missing, say so.
+"""
+
+    return llm.invoke(prompt).content
+
+def summarize_patient_notes(context: str) -> str:
+    llm = get_llm()
+
+    prompt = f"""
+You are assisting a physician.
+
+These are multiple notes for one patient.
+
+Create a concise patient summary covering:
+
+- Major diagnoses / chronic conditions
+- Relevant psychiatric / social history
+- Important admissions or presentations
+- Treatments / procedures
+- Clinical trajectory over time
+- Current risks or follow-up needs if mentioned
+
+Be concise and clinically useful.
+
+Notes:
+{context}
+"""
+
+    return llm.invoke(prompt).content
+
+
+def summarize_single_note(context: str) -> str:
+    llm = get_llm()
+
+    prompt = f"""
+You are assisting a physician.
+
+Summarize this clinical note clearly.
+
+Include:
+
+- Why patient presented
+- Important findings
+- Treatments / procedures
+- Key diagnoses
+- Disposition / follow-up
+
+Note:
+{context}
+"""
+
+    return llm.invoke(prompt).content
+
+
+def summarize_visit_notes(context: str) -> str:
+    llm = get_llm()
+
+    prompt = f"""
+You are assisting a physician.
+
+These notes belong to one hospitalization / visit.
+
+Summarize:
+
+- Reason for admission
+- Hospital course
+- Procedures / treatments
+- Key findings
+- Discharge condition
+- Follow-up needs
+
+Notes:
+{context}
+"""
+
+    return llm.invoke(prompt).content
