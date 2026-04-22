@@ -16,8 +16,6 @@ from src.cache import init_cache
 from src.config import config
 import time
 
-from textwrap import dedent
-
 # ─── Page Config ────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="ClinicalRAG — MIMIC-IV",
@@ -55,8 +53,9 @@ st.markdown("""
 
 /* Kill Streamlit's default top padding */
 [data-testid="stAppViewContainer"] > .main > .block-container {
-    padding-top: 10px !important;
-    padding-bottom: 0 !important;
+    padding-top: 0px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
 }
 
 /* ── Sidebar ── */
@@ -569,15 +568,16 @@ hr { border-color: #E8E8E5; }
 /* Wrapper gives the column a left-border separator and consistent padding */
 .ev-col-wrapper {
     border-left: 1px solid #E8E8E5;
-    min-height: 75vh;
     padding: 0 4px 140px 16px;
+    margin-top: -35px !important;
 }
 
 /* Vault header block */
 .ev-panel-hdr {
-    padding: 2px 0 12px 0;
+    padding: 0 0 12px 0;
     border-bottom: 1px solid #E8E8E5;
     margin-bottom: 12px;
+    margin-top: 0 !important
 }
 
 .ev-panel-lbl {
@@ -758,6 +758,62 @@ hr { border-color: #E8E8E5; }
     line-height: 1.75;
     max-width: 185px;
 }
+
+
+section[data-testid="stHorizontalBlock"] div[data-testid="column"] > div {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+
+.chat-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* ── Button + input vertical alignment ── */
+[data-testid="stButton"] > button {
+    height: 42px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+[data-testid="stTextInput"] {
+    height: 42px !important;
+}
+
+[data-testid="stTextInput"] > div {
+    height: 100% !important;
+}
+
+[data-testid="stTextInput"] input {
+    height: 100% !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Align the input+button columns to vertical center */
+[data-testid="stHorizontalBlock"] {
+    align-items: flex-start !important;
+}
+[data-testid="column"] {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+}
+[data-testid="column"] > div:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+.chat-input-container div[data-testid="stHorizontalBlock"] {
+    align-items: center !important;
+}
+
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -767,6 +823,8 @@ if "chat_history" not in st.session_state:
 
 if "query_input" not in st.session_state:
     st.session_state.query_input = ""
+if "input_key" not in st.session_state:
+    st.session_state.input_key = 0
 
 # Evidence Vault state — holds docs from the most recent pipeline run
 if "ev_docs" not in st.session_state:
@@ -842,9 +900,12 @@ col_chat, col_vault = st.columns([5, 3], gap="small")
 
 # ── LEFT: Chat column ─────────────────────────────────────────────────────────
 with col_chat:
+    st.markdown('<div class="chat-wrapper">', unsafe_allow_html=True)
+    st.markdown('<div class="chat-scroll-area">', unsafe_allow_html=True)
+
     st.markdown('<div style="padding: 0 8px 0 24px;">', unsafe_allow_html=True)
 
-    # Top bar — title, query counter, and index/clear actions
+    # Top bar
     n_queries = sum(1 for m in st.session_state.chat_history if m["role"] == "user")
     st.markdown(f"""
     <div class="top-bar">
@@ -853,7 +914,7 @@ with col_chat:
     </div>
     """, unsafe_allow_html=True)
 
-    # Welcome / empty state
+    # Welcome
     if not st.session_state.chat_history:
         st.markdown("""
         <div class="welcome-container">
@@ -862,10 +923,8 @@ with col_chat:
         </div>
         """, unsafe_allow_html=True)
 
-    # Chat message thread
+    # Chat messages
     else:
-        st.markdown('<div class="chat-scroll">', unsafe_allow_html=True)
-
         for msg in st.session_state.chat_history:
             if msg["role"] == "user":
                 st.markdown(f"""
@@ -876,27 +935,15 @@ with col_chat:
 
             elif msg["role"] == "assistant":
                 result = msg["result"]
-                # For cache hits reranked_docs may be empty — fall back to retrieved_docs count
+
                 docs_for_count = result.reranked_docs or result.retrieved_docs or []
                 n_docs = len(docs_for_count)
 
-                # Compact meta badges
                 badges = f"<span class='badge badge-blue'>📄 {n_docs} notes</span>"
                 if result.cache_hit:
                     badges += "<span class='badge badge-gray'>⚡ cached</span>"
                 if result.used_fallback:
                     badges += "<span class='badge badge-orange'>⚠ fallback</span>"
-
-                # Source pills — compact row (full chunk detail lives in Vault)
-                docs_with_meta = result.reranked_docs or result.retrieved_docs or []
-                sources_html = ""
-                if docs_with_meta:
-                    sources = list(dict.fromkeys([
-                        d["metadata"].get("source", "Unknown")
-                        for d in docs_with_meta if d.get("metadata")
-                    ]))
-                    pills = "".join([f"<span class='source-pill'>{s}</span>" for s in sources])
-                    sources_html = f'<div class="sources-row">{pills}</div>'
 
                 st.markdown(f"""
                 <div class="msg-assistant">
@@ -907,41 +954,33 @@ with col_chat:
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Answer rendered as Streamlit markdown, indented past the avatar
                 st.markdown('<div style="margin-left: 40px;">', unsafe_allow_html=True)
-                with st.container():
-                    st.markdown(result.answer)
-                if sources_html:
-                    st.markdown(sources_html, unsafe_allow_html=True)
+                st.markdown(result.answer)
                 st.markdown('</div>', unsafe_allow_html=True)
 
-                # Debug expander (chunk details moved to Evidence Vault)
-                with st.expander("🛠 Debug", expanded=False):
-                    st.json({
-                        "cache_hit": result.cache_hit,
-                        "rewritten_query": result.rewritten_query,
-                        "retry_count": result.retry_count,
-                        "used_fallback": result.used_fallback,
-                        "retrieved_docs": [
-                            {"source": d["metadata"].get("source"), "note_id": d["metadata"].get("note_id"), "score": d.get("score")}
-                            for d in result.retrieved_docs
-                        ],
-                        "reranked_docs": [
-                            {"source": d["metadata"].get("source"), "note_id": d["metadata"].get("note_id"), "rerank_score": d.get("rerank_score")}
-                            for d in result.reranked_docs
-                        ]
-                    })
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # Spacer so content isn't hidden behind the pinned input bar
-    st.markdown('<div style="height: 100px;"></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)  
+
+    st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
+
+    input_col, btn_col = st.columns([10, 1])
+
+    with input_col:
+        query = st.text_input("", placeholder="Ask about patient treatments, diagnoses, rare patterns...", label_visibility="collapsed", key=f"query_input_{st.session_state.input_key}")
+
+    with btn_col:
+        run_clicked = st.button("→")
+
+    st.markdown('</div>', unsafe_allow_html=True) 
+
+    st.markdown('</div>', unsafe_allow_html=True) 
 
 # ── RIGHT: Evidence Vault column ───────────────────────────────────────────────
 with col_vault:
+    st.markdown('<div class="chat-wrapper">', unsafe_allow_html=True)
     st.markdown('<div class="ev-col-wrapper">', unsafe_allow_html=True)
-
+    st.markdown("""
+    """, unsafe_allow_html=True)
     ev_docs  = st.session_state.get("ev_docs", [])
     ev_query = st.session_state.get("ev_query", "")
 
@@ -1005,57 +1044,35 @@ with col_vault:
             content      = doc.get("content", "")
             snippet      = content[:220] + ("…" if len(content) > 220 else "")
 
-        card_html = dedent(f"""
-        <div class="ev-card {rare_cls}">
-            <div class="ev-head">
-                <div class="ev-top">
-                    <span class="ev-noteid">{note_id}</span>
-                    <span class="ev-score-{tier}">{score_val}</span>
+            st.markdown(f"""
+            <div class="ev-card {rare_cls}">
+                <div class="ev-head">
+                    <div class="ev-top">
+                        <span class="ev-noteid">{note_id}</span>
+                        <span class="ev-score-{tier}">{score_val}</span>
+                    </div>
+                    <div class="ev-meta2">
+                        <span class="ev-srctype">{src_type}</span>
+                        {rare_flag}
+                        <span class="ev-ret">{ret_str}</span>
+                    </div>
+                    <div class="ev-score-bar">
+                        <div class="ev-score-bar-fill {tier}" style="width:{bar_pct}"></div>
+                    </div>
+                    <span class="ev-conf {tier}">● {_score_label(tier)}</span>
                 </div>
-                <div class="ev-meta2">
-                    <span class="ev-srctype">{src_type}</span>
-                    {rare_flag}
-                    <span class="ev-ret">{ret_str}</span>
+                <div class="ev-body">
+                    <div class="ev-snippet">{snippet}</div>
                 </div>
-                <div class="ev-score-bar">
-                    <div class="ev-score-bar-fill {tier}" style="width:{bar_pct}"></div>
-                </div>
-                <span class="ev-conf {tier}">● {_score_label(tier)}</span>
             </div>
-            <div class="ev-body">
-                <div class="ev-snippet">{snippet}</div>
-            </div>
-        </div>
-        """).strip()
-
-        st.markdown(card_html, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)  # ev-cards-wrap
     st.markdown('</div>', unsafe_allow_html=True)  # ev-col-wrapper
 
-# ── Input area (pinned bottom — fixed position spans full viewport width) ─────
-st.markdown('<div class="input-wrapper"><div class="input-inner">', unsafe_allow_html=True)
-
-input_col, btn_col = st.columns([10, 1])
-
-with input_col:
-    query = st.text_input(
-        label="query_input",
-        label_visibility="collapsed",
-        placeholder="Ask about patient treatments, diagnoses, rare patterns…",
-        key="main_query_input"
-    )
-
-with btn_col:
-    run_clicked = st.button("→", type="primary", use_container_width=True)
-
-st.markdown('</div></div>', unsafe_allow_html=True)
 
 # ── Run pipeline ───────────────────────────────────────────────────────────────
-should_run = run_clicked or (
-    query and query.strip() and
-    st.session_state.get("last_submitted") != query.strip()
-)
+should_run = run_clicked
 
 if should_run and query and query.strip():
     st.session_state["last_submitted"] = query.strip()
@@ -1081,6 +1098,9 @@ if should_run and query and query.strip():
     # Push latest retrieved docs to the Evidence Vault
     st.session_state["ev_docs"]  = result.reranked_docs or result.retrieved_docs or []
     st.session_state["ev_query"] = query.strip()
+
+    # Clear input box by changing its key
+    st.session_state.input_key += 1
 
     st.rerun()
 
