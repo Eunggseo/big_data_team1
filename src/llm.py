@@ -50,9 +50,6 @@ When answering, follow this format exactly:
 Answer:
 <give a concise answer based only on the retrieved context>
 
-Evidence:
-<list the most relevant supporting note(s) or short quoted snippets from the retrieved context; include note_id and source whenever available>
-
 Confidence:
 <High / Medium / Low>
 <brief reason, such as number of supporting notes, consistency of evidence, or limited evidence>
@@ -81,9 +78,6 @@ Use this format exactly:
 
 Answer:
 Unable to confirm from the available retrieved notes.
-
-Evidence:
-No strong supporting context was retrieved.
 
 Confidence:
 Low
