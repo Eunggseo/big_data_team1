@@ -966,7 +966,7 @@ with col_chat:
     input_col, btn_col = st.columns([10, 1])
 
     with input_col:
-        query = st.text_input("", placeholder="Ask about patient treatments, diagnoses, rare patterns...", label_visibility="collapsed", key=f"query_input_{st.session_state.input_key}")
+        query = st.text_input("Query", placeholder="Ask about patient treatments, diagnoses, rare patterns...", label_visibility="collapsed", key=f"query_input_{st.session_state.input_key}")
 
     with btn_col:
         run_clicked = st.button("→")
