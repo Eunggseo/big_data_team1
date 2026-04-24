@@ -8,6 +8,7 @@ sys.stderr = open(os.devnull, 'w')
 
 import warnings
 warnings.filterwarnings("ignore")
+import html
 
 import streamlit as st
 from src.pipeline import run_pipeline
@@ -1031,8 +1032,8 @@ with col_vault:
     else:
         for i, doc in enumerate(ev_docs, start=1):
             meta         = doc.get("metadata", {})
-            note_id      = meta.get("note_id") or meta.get("source") or f"doc_{i}"
-            src_type     = meta.get("category") or meta.get("note_type") or "discharge note"
+            note_id_raw  = meta.get("note_id") or meta.get("source") or f"doc_{i}"
+            src_type_raw = meta.get("category") or meta.get("note_type") or "discharge note"
             rerank_score = doc.get("rerank_score")
             ret_score    = doc.get("score")
             tier         = _score_tier(rerank_score)
@@ -1041,8 +1042,14 @@ with col_vault:
             ret_str      = f"ret {ret_score:.3f}" if ret_score is not None else ""
             score_val    = f"{rerank_score:.3f}" if rerank_score is not None else "—"
             bar_pct      = _bar_pct(rerank_score)
-            content      = doc.get("content", "")
-            snippet      = content[:220] + ("…" if len(content) > 220 else "")
+            content_raw  = str(doc.get("content", ""))
+            snippet_raw  = content_raw[:220] + ("…" if len(content_raw) > 220 else "")
+
+            # Render user/data text as plain text inside HTML cards to prevent
+            # markdown/html injection artifacts in the Evidence Vault.
+            note_id  = html.escape(str(note_id_raw))
+            src_type = html.escape(str(src_type_raw))
+            snippet  = html.escape(snippet_raw).replace("\n", "<br>")
 
             st.markdown(f"""
             <div class="ev-card {rare_cls}">
