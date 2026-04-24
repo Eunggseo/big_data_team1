@@ -1,6 +1,7 @@
 # big_data_team1
 
-# Clinical Discharge Note Intelligence System
+# Clinical Note Intelligence with RAG
+**Helping Clinicians Find Relevant Answers Faster from Unstructured Notes**
 
 > This project repository is created in partial fulfillment of the requirements 
 > for the Big Data Analytics course offered by the Master of Science in Business 
@@ -8,20 +9,26 @@
 
 ---
 
-## Project Overview
+## Executive Summary
 
-A RAG-based conversational AI system that enables clinicians and analysts to 
-query medical discharge notes using natural language, powered by GPT-4 and 
-AWS infrastructure.
+Clinical notes are stored as unstructured text that is long, fragmented, and inconsistent, making it difficult for clinicians to effectively search across patients or answer critical questions quickly. 
+
+This project introduces a Retrieval-Augmented Generation (RAG) system that combines structured and semantic search with LLM generation to solve this challenge. By using a FAISS vector database for semantic similarity and GPT-4 for grounded generation, the Streamlit web interface reduces hours of manual chart review into seconds, providing evidence-backed clinical decision-making at scale.
 
 ---
 
 ## Use Cases
 
-- **Use Case 1:** Find patients with similar clinical profiles (age, condition, 
-  lab values) and retrieve relevant treatment patterns
-- **Use Case 2:** Identify co-occurrence of specific drugs and symptoms across 
-  patient populations
+- **Patient-Level Analysis (Chart Review):** Deep dive into a specific patient's history. Quickly extract treatments, responses, and diagnoses from unstructured medical notes to accelerate individual chart review.
+- **Population-Level Insights (Scalable Analysis):** Identify broad clinical patterns across patient groups. Find patients with similar clinical profiles (e.g., age, condition, lab values) and surface trends like drug-symptom co-occurrences to support evidence-based clinical decision-making at scale.
+
+---
+
+## Key System Capabilities
+* **Intent-Aware Routing:** Uses an agentic AI query parser to route queries across semantic search, patient search, note search, and visit search. 
+* **Context Preservation:** Retrieves parent documents to preserve context, expanding beyond standard isolated chunk retrieval.
+* **Grounded Generation & Citations:** GPT-4 synthesizes answers strictly bounded by the retrieved evidence, completely reducing unsupported responses (hallucinations).
+* **Confidence Scoring:** Every response generated always includes note-level citations and confidence indicators from supporting notes.
 
 ---
 
@@ -110,4 +117,12 @@ streamlit run app.py
 ## Related Resources
 - 📊 [Dataset — MIMIC-IV](https://physionet.org/content/mimiciv/3.1/)
 
+
+## Team Members (Team 1)
+* Ethan Armstrong
+* Ziqi Cao
+* Ko-Jung Hsu
+* Cole Johnson
+* Mashhood Khan
+* Wenyu Zhong
 
