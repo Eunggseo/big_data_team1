@@ -38,3 +38,12 @@ def store_response(query: str, response: str) -> None:
     """, (query, response))
     conn.commit()
     conn.close()
+
+
+def clear_response_cache() -> None:
+    init_cache()
+    conn = sqlite3.connect(config.CACHE_DB_PATH)
+    cur = conn.cursor()
+    cur.execute("DELETE FROM cache")
+    conn.commit()
+    conn.close()
