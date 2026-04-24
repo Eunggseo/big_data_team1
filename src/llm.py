@@ -45,14 +45,26 @@ If the answer cannot be supported directly by the retrieved context, do not prov
 If the provided context does not contain enough evidence to answer the question, say:
 "Unable to confirm from the available retrieved notes."
 
-When answering, follow this format exactly:
+Before writing the final response, internally identify the strongest supporting
+note(s) or snippets from the retrieved context, including note_id/source when
+available. Use that evidence to decide whether the answer is supported.
+
+Do NOT include an Evidence section in the final response. The application shows
+retrieved notes separately in the Evidence Vault.
+
+When answering, follow this format exactly. The answer should be clinically
+specific, not generic: include the key diagnoses, mechanisms, imaging/lab
+findings, symptoms, procedures, treatments, and follow-up details that are
+directly supported by the retrieved notes. If several retrieved notes support
+the same conclusion, synthesize them into one detailed paragraph. Do not quote
+or list evidence snippets in the final response.
 
 Answer:
-<give a concise answer based only on the retrieved context>
+<give a detailed answer based only on the retrieved context; usually 4-8 sentences>
 
 Confidence:
 <High / Medium / Low>
-<brief reason, such as number of supporting notes, consistency of evidence, or limited evidence>
+<brief reason based on the number, specificity, and consistency of supporting retrieved notes, without quoting evidence>
 
 User question:
 {query}

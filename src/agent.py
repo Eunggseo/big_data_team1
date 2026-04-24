@@ -9,6 +9,13 @@ from src.config import config
 from src.structured_search import by_note_ids
 
 
+ANSWER_CACHE_VERSION = "answer_prompt_v3"
+
+
+def _cache_key(query: str) -> str:
+    return f"{ANSWER_CACHE_VERSION}:{query.strip().lower()}"
+
+
 def analyze_and_rewrite(state: PipelineState) -> PipelineState:
     state.rewritten_query = state.query
     state.debug["rewritten_query"] = state.query
@@ -19,7 +26,7 @@ def analyze_and_rewrite(state: PipelineState) -> PipelineState:
 def check_cache(state):
     print("[AGENT] Cache check")
 
-    key = (state.rewritten_query or state.query).strip().lower()
+    key = _cache_key(state.rewritten_query or state.query)
     cached = get_cached_response(key)
 
     if cached:
@@ -150,7 +157,7 @@ def fallback(state: PipelineState) -> PipelineState:
 
 
 def save_cache(state):
-    key = (state.rewritten_query or state.query).strip().lower()
+    key = _cache_key(state.rewritten_query or state.query)
 
     if state.answer and not state.cache_hit:
         store_response(key, state.answer)
