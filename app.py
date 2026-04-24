@@ -428,6 +428,71 @@ button[title="Open sidebar"] {
     border-color: #E4E4E7;
 }
 
+.ragas-panel {
+    border: 1px solid #E4E4E7;
+    background: #FAFAFA;
+    border-radius: 7px;
+    padding: 9px 11px;
+    margin: 0 0 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.ragas-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #52525B;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-right: 3px;
+}
+
+.ragas-metric,
+.ragas-overall {
+    font-size: 10.5px;
+    color: #3F3F46;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    white-space: nowrap;
+    border: 1px solid;
+}
+
+.ragas-faithfulness {
+    background: #EEEAF5;
+    border-color: #D9D0E8;
+}
+
+.ragas-relevancy {
+    background: #E9EEF0;
+    border-color: #D4DEE2;
+}
+
+.ragas-overall {
+    font-weight: 600;
+}
+
+.ragas-overall-low {
+    background: #F4E7E5;
+    border-color: #E5C9C5;
+    color: #7A4A45;
+}
+
+.ragas-overall-medium {
+    background: #E7EEF5;
+    border-color: #CAD8E6;
+    color: #455D73;
+}
+
+.ragas-overall-high {
+    background: #E8F2EA;
+    border-color: #CDE1D1;
+    color: #496B50;
+}
+
 /* Rewrite row */
 .rewrite-row {
     font-size: 11.5px;
@@ -984,6 +1049,31 @@ def display_answer_only(answer: str) -> str:
     return answer
 
 
+def format_ragas_scores_html(scores: dict | None) -> str:
+    if not scores:
+        return ""
+
+    faithfulness = scores.get("faithfulness")
+    answer_relevancy = scores.get("answer_relevancy")
+    overall = scores.get("overall")
+
+    if faithfulness is None or answer_relevancy is None or not overall:
+        return ""
+
+    overall_key = str(overall).strip().lower()
+    if overall_key not in {"low", "medium", "high"}:
+        overall_key = "medium"
+
+    return f"""
+    <div class="ragas-panel">
+        <span class="ragas-label">RAGAS</span>
+        <span class="ragas-metric ragas-faithfulness">faithfulness {float(faithfulness):.4f}</span>
+        <span class="ragas-metric ragas-relevancy">answer_relevancy {float(answer_relevancy):.4f}</span>
+        <span class="ragas-overall ragas-overall-{overall_key}">Overall {html.escape(str(overall))}</span>
+    </div>
+    """
+
+
 STOPWORDS = {
     "the", "and", "with", "that", "this", "what", "were", "was", "are", "for",
     "from", "into", "about", "between", "patient", "patients", "noted", "does",
@@ -1222,6 +1312,7 @@ with col_chat:
                 """, unsafe_allow_html=True)
 
                 st.markdown('<div style="margin-left: 40px;">', unsafe_allow_html=True)
+                st.markdown(format_ragas_scores_html(getattr(result, "ragas_scores", None)), unsafe_allow_html=True)
                 st.markdown(format_answer_html(result.answer, docs_for_count), unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 

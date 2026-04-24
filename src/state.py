@@ -17,4 +17,5 @@ class PipelineState(BaseModel):
 
     answer: Optional[str] = None
     used_fallback: bool = False
+    ragas_scores: Optional[Dict[str, Any]] = None
     debug: Dict[str, Any] = Field(default_factory=dict)

@@ -1,0 +1,82 @@
+{
+  "scores": {
+    "can you explain the role of emtricitabine-tenofovir in the treatment plan for patients with chronic conditions?": {
+      "faithfulness": 0.5,
+      "answer_relevancy": 0.8176,
+      "overall": "Medium",
+      "source": "mode2_detail_xlsx"
+    },
+    "what are the implications of diverticulitis in a patient with a history of recurrent episodes and how does it relate to the findings from the ct abdomen?": {
+      "faithfulness": 0.75,
+      "answer_relevancy": 0.8688,
+      "overall": "High",
+      "source": "mode2_detail_xlsx"
+    },
+    "what are the implications of managing a patient with hiv who also has a history of cirrhosis and ascites?": {
+      "faithfulness": 0.8261,
+      "answer_relevancy": 0.964,
+      "overall": "High",
+      "source": "mode2_detail_xlsx"
+    },
+    "what are the key differences in the medical histories and presenting complaints of the patients in the neurology and urology services, particularly focusing on their symptoms and past medical conditions?": {
+      "faithfulness": 0.4286,
+      "answer_relevancy": 0.8999,
+      "overall": "Low",
+      "source": "mode2_detail_xlsx"
+    },
+    "what does ptsd mean in the context of the patient's medical history?": {
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "overall": "Low",
+      "source": "mode2_detail_xlsx"
+    },
+    "what is the relationship between hepatitis c and the patient's current condition?": {
+      "faithfulness": 0.75,
+      "answer_relevancy": 0.8981,
+      "overall": "High",
+      "source": "mode2_detail_xlsx"
+    },
+    "what is the relationship between the patient's anemia and her chronic kidney disease as noted in her hospital course?": {
+      "faithfulness": 0.875,
+      "answer_relevancy": 0.8979,
+      "overall": "High",
+      "source": "demo_precomputed_ragas"
+    },
+    "what is the significance of hct levels in relation to the patient's treatment plan that includes hctz?": {
+      "faithfulness": 0.3158,
+      "answer_relevancy": 0.7505,
+      "overall": "Low",
+      "source": "mode2_detail_xlsx"
+    },
+    "what patient information was documented regarding the management of coronary artery disease and the discharge instructions provided for a patient with atypical chest pain?": {
+      "faithfulness": 0.3913,
+      "answer_relevancy": 0.7575,
+      "overall": "Low",
+      "source": "mode2_detail_xlsx"
+    },
+    "what patient information was gathered during the physical examination and how does it relate to the patient's chief complaint of dyspnea and chest tightness?": {
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.8058,
+      "overall": "Low",
+      "source": "mode2_detail_xlsx"
+    },
+    "what vital signs were recorded for the patient with alcoholic hepatitis during her hospital stay, and how do they relate to her condition?": {
+      "faithfulness": 0.6818,
+      "answer_relevancy": 0.9325,
+      "overall": "Medium",
+      "source": "mode2_detail_xlsx"
+    },
+    "what were the goals of care for the patient with hiv on haart and decompensated hcv cirrhosis, and how did they influence her discharge plan?": {
+      "faithfulness": 0.4667,
+      "answer_relevancy": 0.8611,
+      "overall": "Low",
+      "source": "mode2_detail_xlsx"
+    },
+    "what were the notable findings regarding sodium (na) levels and the patient's overall condition at admission and discharge, particularly in relation to the assessment of nad?": {
+      "faithfulness": 0.2105,
+      "answer_relevancy": 0.8403,
+      "overall": "Low",
+      "source": "mode2_detail_xlsx"
+    }
+  }
+}

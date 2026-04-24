@@ -9,6 +9,7 @@ from src.llm import (
     summarize_single_note,
     summarize_visit_notes
 )
+from src.demo_ragas import attach_demo_ragas_scores
 
 graph = build_graph()
 
@@ -63,6 +64,8 @@ def run_pipeline(query: str):
         log["route"] = "subject_id_lookup"
         log["rows_returned"] = len(df)
         log["answer_preview"] = answer[:1000]
+        state = attach_demo_ragas_scores(state, query)
+        log["ragas_scores"] = state.ragas_scores
         log_run(log)
 
         return state
@@ -84,6 +87,8 @@ def run_pipeline(query: str):
         log["route"] = "note_id_lookup"
         log["rows_returned"] = len(df)
         log["answer_preview"] = answer[:1000]
+        state = attach_demo_ragas_scores(state, query)
+        log["ragas_scores"] = state.ragas_scores
         log_run(log)
 
         return state
@@ -105,6 +110,8 @@ def run_pipeline(query: str):
         log["route"] = "hadm_id_lookup"
         log["rows_returned"] = len(df)
         log["answer_preview"] = answer[:1000]
+        state = attach_demo_ragas_scores(state, query)
+        log["ragas_scores"] = state.ragas_scores
         log_run(log)
 
         return state
@@ -122,6 +129,8 @@ def run_pipeline(query: str):
     log["route"] = "retrieval_search_graph"
     log["graph_debug"] = final_state.debug
     log["answer_preview"] = final_state.answer[:1000] if final_state.answer else ""
+    final_state = attach_demo_ragas_scores(final_state, query)
+    log["ragas_scores"] = final_state.ragas_scores
     log_run(log)
 
     return final_state
