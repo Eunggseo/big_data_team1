@@ -66,34 +66,35 @@ flowchart TD
 
 ```text
 .
-├── app.py                         # Streamlit web application
-├── requirements.txt               # Python dependencies
-├── flier.pdf                      # Project summary flier
-├── RAG_evaluation_dataset.xlsx    # Contains 13 manually curated clinical QA pairs used for Mode 1 RAGAS evaluation
-├── rag_data_pipeline.ipynb        # Data exploration / processing notebook
-├── ragas_evaluation.ipynb         # RAGAS evaluation notebook
-├── evaluation_results/            # Evaluation outputs and summary files
-├── storage/                       # Generated local SQLite DB, cache, and FAISS index artifacts
+├── app.py                                      # Streamlit web application
+├── requirements.txt                            # Python dependencies
+├── flier.pdf                                   # Project summary flier
+├── Clinical Note Intelligence w_ RAG.pdf       # Final presentation slide deck exported as PDF
+├── RAG_evaluation_dataset.xlsx                 # Contains 13 manually curated clinical QA pairs used for Mode 1 RAGAS evaluation
+├── rag_data_pipeline.ipynb                     # Data exploration / processing notebook
+├── ragas_evaluation.ipynb                      # RAGAS evaluation notebook
+├── evaluation_results/                         # Evaluation outputs and summary files
+├── storage/                                    # Generated local SQLite DB, cache, and FAISS index artifacts
 └── src/
-    ├── agent.py                   # LangGraph-style RAG orchestration
-    ├── cache.py                   # Query response cache
-    ├── config.py                  # Environment and model configuration
-    ├── csv_to_sqlite.py           # CSV-to-SQLite loader for structured search
+    ├── agent.py                                # LangGraph-style RAG orchestration
+    ├── cache.py                                # Query response cache
+    ├── config.py                               # Environment and model configuration
+    ├── csv_to_sqlite.py                        # CSV-to-SQLite loader for structured search
     ├── data_sources/
-    │   └── csv_loader.py          # CSV document loader
-    ├── demo_ragas.py              # Demo RAGAS score attachment
-    ├── embeddings.py              # OpenAI embedding model setup
-    ├── evaluator.py               # Retrieval and rerank quality checks
-    ├── ingest.py                  # Data ingestion, chunking, and FAISS index build
-    ├── llm.py                     # OpenAI chat model prompts and generation calls
-    ├── logger.py                  # Pipeline logging utilities
-    ├── parser.py                  # LLM-based query intent parser
-    ├── pipeline.py                # End-to-end RAG pipeline entry point
-    ├── reranker.py                # Cross-encoder reranker
-    ├── retriever.py               # FAISS retrieval logic
-    ├── state.py                   # Pipeline state schema
-    ├── structured_search.py       # subject_id, note_id, and hadm_id search
-    └── vectorstore.py             # FAISS vector store load/save logic
+    │   └── csv_loader.py                       # CSV document loader
+    ├── demo_ragas.py                           # Demo RAGAS score attachment
+    ├── embeddings.py                           # OpenAI embedding model setup
+    ├── evaluator.py                            # Retrieval and rerank quality checks
+    ├── ingest.py                               # Data ingestion, chunking, and FAISS index build
+    ├── llm.py                                  # OpenAI chat model prompts and generation calls
+    ├── logger.py                               # Pipeline logging utilities
+    ├── parser.py                               # LLM-based query intent parser
+    ├── pipeline.py                             # End-to-end RAG pipeline entry point
+    ├── reranker.py                             # Cross-encoder reranker
+    ├── retriever.py                            # FAISS retrieval logic
+    ├── state.py                                # Pipeline state schema
+    ├── structured_search.py                    # subject_id, note_id, and hadm_id search
+    └── vectorstore.py                          # FAISS vector store load/save logic
 ```
 
 ---
