@@ -1,92 +1,124 @@
-# big_data_team1
-
 # Clinical Note Intelligence with RAG
-**Helping Clinicians Find Relevant Answers Faster from Unstructured Notes**
 
-> This project repository is created in partial fulfillment of the requirements 
-> for the Big Data Analytics course offered by the Master of Science in Business 
+**Helping clinicians find relevant answers faster from unstructured clinical notes**
+
+> This project repository was created in partial fulfillment of the requirements
+> for the Big Data Analytics course offered by the Master of Science in Business
 > Analytics program at the Carlson School of Management, University of Minnesota.
 
 ---
 
 ## Executive Summary
 
-Clinical notes are stored as unstructured text that is long, fragmented, and inconsistent, making it difficult for clinicians to effectively search across patients or answer critical questions quickly. 
+Clinical notes are stored as long, fragmented, and inconsistent unstructured text, making it difficult for clinicians and analysts to search across patient histories or answer clinical questions quickly.
 
-This project introduces a Retrieval-Augmented Generation (RAG) system that combines structured and semantic search with LLM generation to solve this challenge. By using a FAISS vector database for semantic similarity and GPT-4 for grounded generation, the Streamlit web interface reduces hours of manual chart review into seconds, providing evidence-backed clinical decision-making at scale.
+This project implements a Retrieval-Augmented Generation (RAG) system that combines structured search, semantic retrieval, reranking, and grounded LLM generation. The Streamlit interface supports patient-level chart review and population-level clinical question answering by retrieving relevant MIMIC-IV discharge notes, synthesizing answers from the retrieved evidence, and displaying supporting notes through an Evidence Vault.
+
+The system uses a FAISS vector store for semantic similarity search, SQLite for direct patient/note/admission lookup, OpenAI embedding and chat models for retrieval and generation, and RAGAS-based evaluation to assess answer quality.
 
 ---
 
 ## Use Cases
 
-- **Patient-Level Analysis (Chart Review):** Deep dive into a specific patient's history. Quickly extract treatments, responses, and diagnoses from unstructured medical notes to accelerate individual chart review.
-- **Population-Level Insights (Scalable Analysis):** Identify broad clinical patterns across patient groups. Find patients with similar clinical profiles (e.g., age, condition, lab values) and surface trends like drug-symptom co-occurrences to support evidence-based clinical decision-making at scale.
+- **Patient-Level Analysis (Chart Review):** Retrieve and summarize a specific patient's clinical history using `subject_id`, `note_id`, or `hadm_id`.
+- **Population-Level Insights (Scalable Analysis):** Search across clinical notes to identify recurring symptoms, diagnoses, treatments, and patterns across patient groups.
+- **Evidence-Backed Question Answering:** Generate concise clinical answers constrained to retrieved notes, with confidence labels and supporting evidence shown in the UI.
 
 ---
 
 ## Key System Capabilities
-* **Intent-Aware Routing:** Uses an agentic AI query parser to route queries across semantic search, patient search, note search, and visit search. 
-* **Context Preservation:** Retrieves parent documents to preserve context, expanding beyond standard isolated chunk retrieval.
-* **Grounded Generation & Citations:** GPT-4 synthesizes answers strictly bounded by the retrieved evidence, completely reducing unsupported responses (hallucinations).
-* **Confidence Scoring:** Every response generated always includes note-level citations and confidence indicators from supporting notes.
+
+- **Intent-Aware Routing:** Parses user queries and routes them to patient lookup, note lookup, visit lookup, or semantic retrieval.
+- **Hybrid Retrieval:** Combines structured SQLite search with FAISS-based semantic search over chunked clinical notes.
+- **Parent Note Context:** Retrieves full parent notes from top-ranked chunks to preserve clinical context before generation.
+- **Grounded Generation:** Constrains LLM answers to retrieved clinical-note context, significantly reducing unsupported responses.
+- **Reranking:** Uses a cross-encoder reranker to improve the relevance of retrieved chunks before generation.
+- **Evidence Vault:** Displays retrieved supporting notes, metadata, scores, and note IDs in the Streamlit interface.
+- **Evaluation Support:** Includes RAGAS evaluation notebooks, generated test sets, and summary result files.
 
 ---
 
 ## System Architecture
 
-```
-User
-↓
-Streamlit UI
-↓
-HTTPS Endpoint
-↓
-API Service (AWS ECS/Fargate)
-↓
-RAG Orchestrator
-- agent logic · query rewrite · retrieval · reranker · cache
-↓
-OpenAI API
-- embeddings API → convert query to vector
-- generation API → produce final answer from retrieved context
-↓
-Vector Store (FAISS) + Cache/Database
-↓
-Response returned to UI
+```mermaid
+flowchart TD
+    A[User] --> B[Streamlit UI]
+    B --> C[RAG Pipeline]
+    C --> D[LLM Query Parser]
+    D --> E{Query Type}
+    E -->|subject_id / note_id / hadm_id| F[SQLite Structured Search]
+    E -->|semantic question| G[OpenAI Embeddings]
+    G --> H[FAISS Vector Store]
+    H --> I[Cross-Encoder Reranker]
+    I --> J[Parent Note Retrieval]
+    F --> K[Retrieved Clinical Context]
+    J --> K
+    K --> L[OpenAI Chat Model]
+    L --> M[Answer + Confidence]
+    K --> N[Evidence Vault]
+    M --> B
+    N --> B
 ```
 
 ---
 
 ## Repository Structure
 
-```
-src/
-├── data_sources/      # Raw and processed data references
-├── agent.py           # Agent logic and orchestration
-├── cache.py           # Query caching layer
-├── config.py          # Environment and model configuration
-├── embeddings.py      # Text embedding via OpenAI API
-├── evaluator.py       # RAGAS-based evaluation pipeline
-├── ingest.py          # Data ingestion and chunking (FAISS cosine similarity)
-├── llm.py             # GPT-4 generation calls
-├── logger.py          # Logging utilities
-├── pipeline.py        # End-to-end RAG pipeline
-├── reranker.py        # Chunk reranking logic
-├── retriever.py       # Vector store retrieval
-├── state.py           # Session/state management
-└── vectorstore.py     # FAISS vector store setup and query
+```text
+.
+├── app.py                         # Streamlit web application
+├── requirements.txt               # Python dependencies
+├── RAG_evaluation_dataset.xlsx    # Clinical QA evaluation dataset
+├── rag_data_pipeline.ipynb        # Data exploration / processing notebook
+├── ragas_evaluation.ipynb         # RAGAS evaluation notebook
+├── evaluation_results/            # Evaluation outputs and summary files
+├── storage/                       # Local SQLite DB, cache, and FAISS index artifacts
+└── src/
+    ├── agent.py                   # LangGraph-style RAG orchestration
+    ├── cache.py                   # Query response cache
+    ├── config.py                  # Environment and model configuration
+    ├── csv_to_sqlite.py           # CSV-to-SQLite loader for structured search
+    ├── data_sources/
+    │   └── csv_loader.py          # CSV document loader
+    ├── demo_ragas.py              # Demo RAGAS score attachment
+    ├── embeddings.py              # OpenAI embedding model setup
+    ├── evaluator.py               # Retrieval and rerank quality checks
+    ├── ingest.py                  # Data ingestion, chunking, and FAISS index build
+    ├── llm.py                     # LLM prompts and generation calls
+    ├── logger.py                  # Pipeline logging utilities
+    ├── parser.py                  # LLM-based query intent parser
+    ├── pipeline.py                # End-to-end RAG pipeline entry point
+    ├── reranker.py                # Cross-encoder reranker
+    ├── retriever.py               # FAISS retrieval logic
+    ├── state.py                   # Pipeline state schema
+    ├── structured_search.py       # subject_id, note_id, and hadm_id search
+    └── vectorstore.py             # FAISS vector store load/save logic
 ```
 
 ---
 
 ## Dataset
 
-- **MIMIC-IV 3.1** — Clinical discharge notes (mimic-iv-note-2.2)
-- `discharge.csv` — joinable to `admissions.csv` on `hadm_id`
-- `chunks.parquet` (1.73 GB) — Section-level chunked notes with metadata 
-  (note_id, subject_id, hadm_id)
-- `RAG_evaluation_dataset_new.xlsx` — 20 clinical QA pairs for evaluation
-- All data stored on shared AWS S3 bucket
+- **MIMIC-IV 3.1** clinical data and **MIMIC-IV Note 2.2** discharge notes
+- `discharge.csv`, joinable to admissions data using `hadm_id`
+- Chunk-level metadata includes `note_id`, `subject_id`, `hadm_id`, and source fields
+- `RAG_evaluation_dataset.xlsx` contains clinical QA examples used for evaluation
+- Large raw and processed data files are stored outside the repository, including shared AWS S3 storage
+
+### Data Access Notice
+
+MIMIC-IV is not publicly downloadable without authorization. Users must request credentialed access through PhysioNet and complete the required human-subjects research training before accessing the dataset.
+
+Dataset resource: [MIMIC-IV on PhysioNet](https://physionet.org/content/mimiciv/3.1/)
+
+---
+
+## Prerequisites
+
+- Python 3.10+
+- OpenAI API key
+- Authorized MIMIC-IV / MIMIC-IV Note access through PhysioNet
+- Optional: AWS access through an IAM role, AWS CLI profile, or course-provided credentials if loading data from S3
 
 ---
 
@@ -97,32 +129,100 @@ src/
 git clone https://github.com/Eunggseo/big_data_team1.git
 cd big_data_team1
 
-# 2. Install dependencies
+# 2. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 3. Set environment variables
-export OPENAI_API_KEY=your_openai_key
-export AWS_ACCESS_KEY_ID=your_aws_key
-export AWS_SECRET_ACCESS_KEY=your_aws_secret
+# 4. Configure environment variables
+cp .env.example .env
+# Edit .env with your OpenAI key and local data path
 
-# 4. Ingest data into vector store
-python src/ingest.py
+# 5. Build the SQLite notes database for structured search
+python -m src.csv_to_sqlite
 
-# 5. Run the Streamlit UI
+# 6. Build the FAISS vector index
+python -m src.ingest
+
+# 7. Run the Streamlit UI
 streamlit run app.py
 ```
 
+Example `.env` configuration:
+
+```text
+OPENAI_API_KEY=your_openai_key
+OPENAI_CHAT_MODEL=gpt-4.1-mini
+OPENAI_EMBED_MODEL=text-embedding-3-small
+DATA_PATH=/path/to/discharge.csv
+FAISS_INDEX_DIR=./storage/faiss_index
+CACHE_DB_PATH=./storage/cache.sqlite
+```
+
+For AWS-backed data access, prefer an IAM role or AWS CLI profile when possible instead of committing or hardcoding access keys.
+
 ---
 
-## Related Resources
-- 📊 [Dataset — MIMIC-IV](https://physionet.org/content/mimiciv/3.1/)
+## Usage Examples
 
+After launching the Streamlit app, users can ask questions such as:
+
+```text
+Summarize the clinical history for subject_id 12345.
+```
+
+```text
+What treatments were documented for patients with sepsis?
+```
+
+```text
+Summarize the hospitalization for hadm_id 27531779.
+```
+
+```text
+What evidence is available about anemia management in patients with chronic kidney disease?
+```
+
+The application returns a grounded answer, a confidence label, and retrieved supporting notes in the Evidence Vault.
+
+---
+
+## Evaluation Results
+
+The project includes RAGAS-based evaluation outputs under `evaluation_results/`. Two retrieval/generation modes were compared using the clinical QA evaluation workflow.
+
+| Evaluation Mode | Faithfulness | Answer Relevancy | Context Precision | Context Recall |
+| --- | ---: | ---: | ---: | ---: |
+| Mode 1 | 0.3538 | 0.0378 | 0.0000 | 0.0000 |
+| Mode 2 | 0.4434 | 0.7830 | 0.7153 | 0.3819 |
+
+Mode 2 showed stronger answer relevancy and context precision, indicating that the retrieval and reranking workflow improved the quality of evidence passed into generation.
+
+---
+
+## Limitations
+
+- The system is a course project prototype and is not intended for clinical deployment.
+- Generated answers depend on the quality and coverage of retrieved notes.
+- RAG reduces hallucination risk but cannot eliminate it entirely.
+- MIMIC-IV data is deidentified, but access and handling must still follow PhysioNet requirements.
+- Local paths and large data artifacts may need to be adjusted for each user's environment.
+
+---
+
+## License
+
+This repository is intended for academic use as part of the Big Data Analytics course project. If released publicly beyond the course context, the team should add an explicit open-source license such as MIT or Apache 2.0.
+
+---
 
 ## Team Members (Team 1)
-* Ethan Armstrong
-* Ziqi Cao
-* Ko-Jung Hsu
-* Cole Johnson
-* Mashhood Khan
-* Wenyu Zhong
 
+- Ethan Armstrong
+- Ziqi Cao
+- Ko-Jung Hsu
+- Cole Johnson
+- Mashhood Khan
+- Wenyu Zhong
