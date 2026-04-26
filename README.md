@@ -2,7 +2,7 @@
 
 **Helping clinicians find relevant answers faster from unstructured clinical notes**
 
-> This project repository was created in partial fulfillment of the requirements
+> This project repository is created in partial fulfillment of the requirements
 > for the Big Data Analytics course offered by the Master of Science in Business
 > Analytics program at the Carlson School of Management, University of Minnesota.
 
@@ -22,7 +22,7 @@ The system uses a FAISS vector store for semantic similarity search, SQLite for 
 
 - **Patient-Level Analysis (Chart Review):** Retrieve and summarize a specific patient's clinical history using `subject_id`, `note_id`, or `hadm_id`.
 - **Population-Level Insights (Scalable Analysis):** Search across clinical notes to identify recurring symptoms, diagnoses, treatments, and patterns across patient groups.
-- **Evidence-Backed Question Answering:** Generate concise clinical answers constrained to retrieved notes, with confidence labels and supporting evidence shown in the UI.
+- **Evidence-Backed Question Answering:** Generate concise clinical answers constrained to retrieved notes, with RAGAS-based confidence indicators and supporting evidence shown in the UI.
 
 ---
 
@@ -68,11 +68,12 @@ flowchart TD
 .
 ├── app.py                         # Streamlit web application
 ├── requirements.txt               # Python dependencies
-├── RAG_evaluation_dataset.xlsx    # Clinical QA evaluation dataset
+├── flier.pdf                      # Project summary flier
+├── RAG_evaluation_dataset.xlsx    # Contains 13 manually curated clinical QA pairs used for Mode 1 RAGAS evaluation
 ├── rag_data_pipeline.ipynb        # Data exploration / processing notebook
 ├── ragas_evaluation.ipynb         # RAGAS evaluation notebook
 ├── evaluation_results/            # Evaluation outputs and summary files
-├── storage/                       # Local SQLite DB, cache, and FAISS index artifacts
+├── storage/                       # Generated local SQLite DB, cache, and FAISS index artifacts
 └── src/
     ├── agent.py                   # LangGraph-style RAG orchestration
     ├── cache.py                   # Query response cache
@@ -84,7 +85,7 @@ flowchart TD
     ├── embeddings.py              # OpenAI embedding model setup
     ├── evaluator.py               # Retrieval and rerank quality checks
     ├── ingest.py                  # Data ingestion, chunking, and FAISS index build
-    ├── llm.py                     # LLM prompts and generation calls
+    ├── llm.py                     # OpenAI chat model prompts and generation calls
     ├── logger.py                  # Pipeline logging utilities
     ├── parser.py                  # LLM-based query intent parser
     ├── pipeline.py                # End-to-end RAG pipeline entry point
@@ -102,8 +103,8 @@ flowchart TD
 - **MIMIC-IV 3.1** clinical data and **MIMIC-IV Note 2.2** discharge notes
 - `discharge.csv`, joinable to admissions data using `hadm_id`
 - Chunk-level metadata includes `note_id`, `subject_id`, `hadm_id`, and source fields
-- `RAG_evaluation_dataset.xlsx` contains clinical QA examples used for evaluation
-- Large raw and processed data files are stored outside the repository, including shared AWS S3 storage
+- `RAG_evaluation_dataset.xlsx` contains 13 manually curated clinical QA pairs used for Mode 1 RAGAS evaluation
+- Large raw and processed data files are stored outside the repository and should be accessed through the approved course or team storage location
 
 ### Data Access Notice
 
@@ -118,7 +119,6 @@ Dataset resource: [MIMIC-IV on PhysioNet](https://physionet.org/content/mimiciv/
 - Python 3.10+
 - OpenAI API key
 - Authorized MIMIC-IV / MIMIC-IV Note access through PhysioNet
-- Optional: AWS access through an IAM role, AWS CLI profile, or course-provided credentials if loading data from S3
 
 ---
 
@@ -144,7 +144,7 @@ cp .env.example .env
 python -m src.csv_to_sqlite
 
 # 6. Build the FAISS vector index
-python -m src.ingest
+python -c "from src.ingest import build_index; build_index()"
 
 # 7. Run the Streamlit UI
 streamlit run app.py
@@ -159,9 +159,9 @@ OPENAI_EMBED_MODEL=text-embedding-3-small
 DATA_PATH=/path/to/discharge.csv
 FAISS_INDEX_DIR=./storage/faiss_index
 CACHE_DB_PATH=./storage/cache.sqlite
+SQLITE_DB_PATH=./storage/notes.db
 ```
 
-For AWS-backed data access, prefer an IAM role or AWS CLI profile when possible instead of committing or hardcoding access keys.
 
 ---
 
@@ -191,7 +191,9 @@ The application returns a grounded answer, a confidence label, and retrieved sup
 
 ## Evaluation & Verification
 
-The system was evaluated using a curated clinical QA dataset and RAGAS-based metrics, including faithfulness, answer relevancy, context precision, and context recall. Evaluation artifacts and notebooks are included in the repository to support reproducibility and future improvement.
+The RAG pipeline was evaluated using RAGAS in two modes. Mode 1 uses `RAG_evaluation_dataset.xlsx`, a manually curated set of 13 clinical QA pairs created for initial evaluation. Mode 2 uses an auto-generated QA test set to provide broader evaluation coverage.
+
+Both modes are evaluated using RAGAS metrics, including faithfulness, answer relevancy, context precision, and context recall. Evaluation artifacts and notebooks are included in the repository to support reproducibility and future improvement.
 
 In addition to automated evaluation, the Streamlit interface displays retrieved supporting notes through the Evidence Vault so users can verify whether generated answers are grounded in the source documents.
 
