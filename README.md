@@ -189,16 +189,11 @@ The application returns a grounded answer, a confidence label, and retrieved sup
 
 ---
 
-## Evaluation Results
+## Evaluation & Verification
 
-The project includes RAGAS-based evaluation outputs under `evaluation_results/`. Two retrieval/generation modes were compared using the clinical QA evaluation workflow.
+The system was evaluated using a curated clinical QA dataset and RAGAS-based metrics, including faithfulness, answer relevancy, context precision, and context recall. Evaluation artifacts and notebooks are included in the repository to support reproducibility and future improvement.
 
-| Evaluation Mode | Faithfulness | Answer Relevancy | Context Precision | Context Recall |
-| --- | ---: | ---: | ---: | ---: |
-| Mode 1 | 0.3538 | 0.0378 | 0.0000 | 0.0000 |
-| Mode 2 | 0.4434 | 0.7830 | 0.7153 | 0.3819 |
-
-Mode 2 showed stronger answer relevancy and context precision, indicating that the retrieval and reranking workflow improved the quality of evidence passed into generation.
+In addition to automated evaluation, the Streamlit interface displays retrieved supporting notes through the Evidence Vault so users can verify whether generated answers are grounded in the source documents.
 
 ---
 
@@ -220,9 +215,9 @@ This repository is intended for academic use as part of the Big Data Analytics c
 
 ## Team Members (Team 1)
 
-- Ethan Armstrong
-- Ziqi Cao
-- Ko-Jung Hsu
-- Cole Johnson
-- Mashhood Khan
-- Wenyu Zhong
+- [Ethan Armstrong](https://github.com/armst813)
+- [Ziqi Cao](https://github.com/AnkitCao)
+- [Ko-Jung Hsu](https://github.com/kojunghsu)
+- [Cole Johnson](https://github.com/colej2325)
+- [Mashhood Khan](https://github.com/mkhan-7)
+- [Wenyu Zhong](https://github.com/Eunggseo)
