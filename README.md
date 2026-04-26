@@ -130,10 +130,6 @@ data/sample/discharge_sample.csv
 
 This file contains 1,000 fictitious discharge summary records with the same column structure as MIMIC-IV Note `discharge.csv`. It is intended only for testing CSV loading, chunking, embedding, retrieval, structured lookup, and RAG pipeline behavior. It does not contain real patient information and should not be used for clinical analysis, medical decision-making, or evaluation claims about real patient populations.
 
-### Evaluation Dataset
-
-`RAG_evaluation_dataset.xlsx` contains 13 manually curated clinical QA pairs used for Mode 1 RAGAS evaluation.
-
 ---
 
 ## Prerequisites
