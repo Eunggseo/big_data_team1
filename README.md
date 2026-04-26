@@ -12,7 +12,7 @@
 
 Clinical notes are stored as long, fragmented, and inconsistent unstructured text, making it difficult for clinicians and analysts to search across patient histories or answer clinical questions quickly.
 
-This project implements a Retrieval-Augmented Generation (RAG) system that combines structured search, semantic retrieval, reranking, and grounded LLM generation. The Streamlit interface supports patient-level chart review and population-level clinical question answering by retrieving relevant MIMIC-IV discharge notes, synthesizing answers from the retrieved evidence, and displaying supporting notes through an Evidence Vault.
+This project implements a Retrieval-Augmented Generation (RAG) system that combines structured search, semantic retrieval, reranking, and grounded LLM generation. The Streamlit interface supports patient-level chart review and cross note clinical question answering by retrieving relevant MIMIC-IV discharge notes, synthesizing answers from the retrieved evidence, and displaying supporting notes through an Evidence Vault.
 
 The system uses a FAISS vector store for semantic similarity search, SQLite for direct patient/note/admission lookup, OpenAI embedding and chat models for retrieval and generation, and RAGAS-based evaluation to assess answer quality.
 
@@ -210,9 +210,23 @@ In addition to automated evaluation, the Streamlit interface displays retrieved 
 
 ---
 
+## Future Enhancements
+
+- The current demonstration uses the `discharge.csv` component of the MIMIC dataset. The data source can be adapted to other note files or datasets by updating the `DATA_PATH` variable in the `.env` configuration.
+
+- Additional tuning of retrieval and generation hyperparameters in `config.py` (for example chunk size, retrieval depth, reranking thresholds, and context limits) may further improve system performance.
+
+- The codebase includes a query rewriting component within the LangGraph workflow. It is currently disabled because, in clinical settings, aggressive rewriting may omit important nuances from the original query. Future work may revisit this with stronger safeguards.
+
+- The current cache implementation uses exact query string matching. Future versions could improve efficiency through semantic or similarity-based caching.
+
+- Prompt engineering for both LLM layers (the query parser and clinical answer generator) can be further improved through techniques such as few-shot prompting, stronger guardrails, and more structured negative prompting.
+
+---
+
 ## License
 
-This repository is intended for academic use as part of the Big Data Analytics course project. If released publicly beyond the course context, the team should add an explicit open-source license such as MIT or Apache 2.0.
+This repository is intended for academic use as part of the Big Data Analytics course project. For reuse beyond coursework, please contact the project team.
 
 ---
 
