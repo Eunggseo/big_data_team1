@@ -1,8 +1,14 @@
 *.env
+.env
 *.csv
 __pycache__
 logs/
 data/
+!data/
+data/*
+!data/sample/
+!data/sample/README.md
+!data/sample/discharge_sample.csv
 .vscode
 
 # FAISS index
