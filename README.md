@@ -74,6 +74,10 @@ flowchart TD
 ├── rag_data_pipeline.ipynb                     # Data exploration / processing notebook
 ├── ragas_evaluation.ipynb                      # RAGAS evaluation notebook
 ├── evaluation_results/                         # Evaluation outputs and summary files
+├── data/
+│   └── sample/
+│       ├── README.md                           # Synthetic sample data notice and usage notes
+│       └── discharge_sample.csv                # Synthetic discharge note sample for pipeline testing
 ├── storage/                                    # Generated local SQLite DB, cache, and FAISS index artifacts
 └── src/
     ├── agent.py                                # LangGraph-style RAG orchestration
@@ -99,19 +103,36 @@ flowchart TD
 
 ---
 
-## Dataset
+## Data
 
-- **MIMIC-IV 3.1** clinical data and **MIMIC-IV Note 2.2** discharge notes
-- `discharge.csv`, joinable to admissions data using `hadm_id`
-- Chunk-level metadata includes `note_id`, `subject_id`, `hadm_id`, and source fields
-- `RAG_evaluation_dataset.xlsx` contains 13 manually curated clinical QA pairs used for Mode 1 RAGAS evaluation
-- Large raw and processed data files are stored outside the repository and should be accessed through the approved course or team storage location
+This project is designed to work with discharge notes from **MIMIC-IV Note 2.2**, together with relevant metadata from **MIMIC-IV 3.1**. Chunk-level metadata includes `note_id`, `subject_id`, `hadm_id`, and source fields.
 
-### Data Access Notice
+### Real Clinical Data
 
-MIMIC-IV is not publicly downloadable without authorization. Users must request credentialed access through PhysioNet and complete the required human-subjects research training before accessing the dataset.
+The real MIMIC-IV and MIMIC-IV Note datasets are not included in this repository. Reviewers who want to run the full pipeline with real clinical notes must obtain credentialed access through PhysioNet and complete the required training and Data Use Agreement requirements.
 
-Dataset resource: [MIMIC-IV on PhysioNet](https://physionet.org/content/mimiciv/3.1/)
+- MIMIC-IV: [https://physionet.org/content/mimiciv/3.1/](https://physionet.org/content/mimiciv/3.1/)
+- MIMIC-IV Note: [https://physionet.org/content/mimic-iv-note/2.2/](https://physionet.org/content/mimic-iv-note/2.2/)
+
+After downloading the authorized data, place the real `discharge.csv` file in a local data directory outside version control, or update the `DATA_PATH` value in `.env` to point to its location. For example:
+
+```text
+DATA_PATH=/path/to/discharge.csv
+```
+
+### Synthetic Sample Data
+
+For reviewers who do not have credentialed PhysioNet access, this repository includes a small synthetic sample file:
+
+```text
+data/sample/discharge_sample.csv
+```
+
+This file contains 1,000 fictitious discharge summary records with the same column structure as MIMIC-IV Note `discharge.csv`. It is intended only for testing CSV loading, chunking, embedding, retrieval, structured lookup, and RAG pipeline behavior. It does not contain real patient information and should not be used for clinical analysis, medical decision-making, or evaluation claims about real patient populations.
+
+### Evaluation Dataset
+
+`RAG_evaluation_dataset.xlsx` contains 13 manually curated clinical QA pairs used for Mode 1 RAGAS evaluation.
 
 ---
 
