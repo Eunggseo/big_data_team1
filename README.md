@@ -25,6 +25,13 @@ The system uses a FAISS vector store for semantic similarity search, SQLite for 
 - **Evidence-Backed Question Answering:** Generate concise clinical answers constrained to retrieved notes, with RAGAS-based confidence indicators and supporting evidence shown in the UI.
 
 ---
+## Demo
+
+A short demo video is available here:
+
+https://github.com/user-attachments/assets/559e7994-86d4-4946-838c-c0c9437c2924
+
+---
 
 ## Key System Capabilities
 
